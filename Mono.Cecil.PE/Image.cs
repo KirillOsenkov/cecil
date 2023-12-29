@@ -48,6 +48,19 @@ namespace Mono.Cecil.PE {
 		public DataDirectory Resources;
 		public DataDirectory StrongName;
 
+		public ByteBuffer GetWin32ResourcesBytes()
+		{
+			var size = Win32Resources.Size;
+			if (size > 0)
+			{
+				var rva = Win32Resources.VirtualAddress;
+				var buffer = GetReaderAt(rva, size, (position, reader) => new ByteBuffer(reader.ReadBytes((int)position)));
+				return buffer;
+			}
+
+			return null;
+		}
+
 		public StringHeap StringHeap;
 		public BlobHeap BlobHeap;
 		public UserStringHeap UserStringHeap;

@@ -994,6 +994,23 @@ namespace Mono.Cecil {
 			get { return Image != null && Image.DebugHeader != null; }
 		}
 
+		public ResourceDirectory ReadWin32ResourceDirectory ()
+		{
+			if (!HasImage) {
+				return null;
+			}
+
+			var bytes = Image.GetWin32ResourcesBytes();
+			if (bytes == null) {
+				return null;
+			}
+
+			var win32ResourceDirectory = RsrcReader.ReadResourceDirectory(bytes, Image.Win32Resources.VirtualAddress);
+			return win32ResourceDirectory;
+		}
+
+		public ResourceDirectory Win32ResourceDirectory { get; set; }
+
 		public ImageDebugHeader GetDebugHeader ()
 		{
 			return Image.DebugHeader ?? new ImageDebugHeader ();

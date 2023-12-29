@@ -478,6 +478,7 @@ namespace Mono.Cecil {
 	public class DefaultMetadataImporter : IMetadataImporter {
 
 		readonly protected ModuleDefinition module;
+		readonly Dictionary<TypeRefKey, TypeReference> cache = new Dictionary<TypeRefKey, TypeReference>();
 
 		public DefaultMetadataImporter (ModuleDefinition module)
 		{
@@ -486,12 +487,48 @@ namespace Mono.Cecil {
 			this.module = module;
 		}
 
+		struct TypeRefKey : IEquatable<TypeRefKey>
+		{
+			string fullname;
+			string assembly;
+			bool isValueType;
+
+			public static TypeRefKey From(TypeReference r)
+			{
+				return new TypeRefKey { fullname = r.FullName, assembly = r.Scope.ToString(), isValueType = r.IsValueType };
+			}
+
+			public override int GetHashCode()
+			{
+				return fullname.GetHashCode() + assembly.GetHashCode() + (isValueType ? 1 : 0);
+			}
+
+			public bool Equals(TypeRefKey other)
+			{
+				return other.fullname == fullname && other.assembly == assembly && other.isValueType == isValueType;
+			}
+		}
+
 		TypeReference ImportType (TypeReference type, ImportGenericContext context)
 		{
 			if (type.IsTypeSpecification ())
 				return ImportTypeSpecification (type, context);
 
-			var reference = new TypeReference (
+			var reference = default(TypeReference);
+			var key = TypeRefKey.From(type);
+			if (cache.TryGetValue(key, out reference))
+			{
+				// Cecil only fills TypeRef GenericParameters if used ( bug ?)
+				// Now that we cache them, we need to make sure the cached version has all of the needed ones
+				if (type.HasGenericParameters && reference.GenericParameters.Count != type.GenericParameters.Count)
+				{
+					for (int i = reference.GenericParameters.Count - 1; i < type.GenericParameters.Count; i++)
+						reference.GenericParameters.Add(new GenericParameter(reference));
+				}
+				return reference;
+			}
+
+			reference = new TypeReference(
 				type.Namespace,
 				type.Name,
 				module,
@@ -505,6 +542,8 @@ namespace Mono.Cecil {
 
 			if (type.HasGenericParameters)
 				ImportGenericParameters (reference, type);
+
+			cache.Add(key, reference);
 
 			return reference;
 		}
