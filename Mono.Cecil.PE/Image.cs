@@ -47,6 +47,7 @@ namespace Mono.Cecil.PE {
 		public DataDirectory Debug;
 		public DataDirectory Resources;
 		public DataDirectory StrongName;
+		public DataDirectory CertificateTable;
 
 		public StringHeap StringHeap;
 		public BlobHeap BlobHeap;

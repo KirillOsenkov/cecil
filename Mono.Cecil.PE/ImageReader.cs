@@ -173,11 +173,14 @@ namespace Mono.Cecil.PE {
 
 			image.Win32Resources = ReadDataDirectory ();
 
+			Advance(8);
 			// ExceptionTable		8
 			// CertificateTable		8
 			// BaseRelocationTable	8
 
-			Advance (24);
+			image.CertificateTable = ReadDataDirectory();
+
+			Advance (8);
 
 			// Debug				8
 			image.Debug = ReadDataDirectory ();

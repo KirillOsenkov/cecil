@@ -15,6 +15,21 @@ namespace Mono.Cecil.Tests {
 	public class ImageReadTests : BaseTestFixture {
 
 		[Test]
+		public void Certificate()
+		{
+			var bytes = ReadCertificateTable (@"C:\temp\1\Microsoft.M365.Core.Utility.dll");
+			var bytes2 = ReadCertificateTable (@"C:\temp\1\System.IO.Abstractions.dll");
+		}
+
+		private static ByteBuffer ReadCertificateTable (string filePath)
+		{
+			var module = ModuleDefinition.ReadModule (filePath);
+			var table = module.Image.CertificateTable;
+			var bytes = module.Image.GetReaderAt (table.VirtualAddress, table.Size, (s, reader) => new ByteBuffer (reader.ReadBytes ((int)s)));
+			return bytes;
+		}
+
+		[Test]
 		public void ImageSections ()
 		{
 			using (var image = GetResourceImage ("hello.exe")) {
