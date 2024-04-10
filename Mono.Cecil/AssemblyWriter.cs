@@ -1905,7 +1905,10 @@ namespace Mono.Cecil {
 
 				return ElementType.Class;
 			case ElementType.String:
-				return ElementType.String;
+				if (constant is string)
+					return ElementType.String;
+				else
+					return GetConstantType (constant.GetType ());
 			case ElementType.Object:
 				return GetConstantType (constant.GetType ());
 			case ElementType.Array:
@@ -2201,7 +2204,7 @@ namespace Mono.Cecil {
 				signature.WriteInt32 (0);
 				break;
 			case ElementType.String:
-				signature.WriteConstantString ((string) value);
+				signature.WriteConstantString (value);
 				break;
 			default:
 				signature.WriteConstantPrimitive (value);
@@ -2904,10 +2907,13 @@ namespace Mono.Cecil {
 			return true;
 		}
 
-		public void WriteConstantString (string value)
+		public void WriteConstantString (object value)
 		{
 			if (value != null)
-				WriteBytes (Encoding.Unicode.GetBytes (value));
+				if (value is string v)
+					WriteBytes (Encoding.Unicode.GetBytes (v));
+				else
+					WritePrimitiveValue (value);
 			else
 				WriteByte (0xff);
 		}
