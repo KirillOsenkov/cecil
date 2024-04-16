@@ -43,4 +43,5 @@
 	.field private static literal char char_int16 = int16(0x0001)
 	.field private static literal int16 int16_char = char(0x0073)
 	.field private static literal int32 int32_nullref = nullref
+	.field private static literal string string_sbyte = int8(0x20)
 }

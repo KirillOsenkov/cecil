@@ -341,6 +341,12 @@ namespace Mono.Cecil.Tests {
 				Assert.IsTrue (field.HasConstant);
 				Assert.IsInstanceOf (typeof (char), field.Constant);
 				Assert.AreEqual ('s', field.Constant);
+
+				field = fields.GetField ("string_sbyte");
+				Assert.AreEqual ("System.String", field.FieldType.FullName);
+				Assert.IsTrue (field.HasConstant);
+				Assert.IsInstanceOf (typeof (sbyte), field.Constant);
+				Assert.AreEqual ((sbyte)0x20, field.Constant);
 			});
 		}
 
